@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HackingMiniGame</title>
+  <style>
+    /* Global styling */
+    body {
+      background-color: black;
+      color: green; /* Set all text to green */
+      font-family: monospace;
+    }
+    
+    /* Styling for the grid, text, and attempts */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, auto);
+      grid-gap: 10px;
+      font-size: 1.2em;
+    }
+    .grid-item {
+      padding: 5px;
+      white-space: pre; /* Preserve spaces */
+    }
+    /* Attempt display */
+    #attempts-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    #attempts-text {
+      font-size: 1.2em;
+      margin-right: 10px;
+    }
+    #attempts {
+      display: flex;
+      gap: 10px; /* Space between squares */
+    }
+    .attempt {
+      width: 20px;
+      height: 20px;
+      background-color: green;
+    }
+    /* Blinking green effect on hover */
+    .word {
+      position: relative; /* Positioning for the green box effect */
+      display: inline-block; /* Allow the box to wrap around the word */
+      cursor: pointer; /* Show pointer cursor */
+    }
+    .word:hover {
+      animation: blink 1s infinite alternate;
+    }
+    .word::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 255, 0, 0.3); /* Light green box */
+      z-index: -1; /* Behind the text */
+      transition: opacity 0.2s;
+      opacity: 0; /* Initially hidden */
+    }
+    .word:hover::after {
+      opacity: 1; /* Show the green box on hover */
+    }
+    @keyframes blink {
+      0% { color: #00ff00; }
+      50% { color: #003300; }
+      100% { color: #00ff00; }
+    }
+  </style>
+</head>
+<body>
+  <div id="attempts-container">
+    <span id="attempts-text">Attempts Remaining:</span>
+    <div id="attempts">
+      <div class="attempt"></div>
+      <div class="attempt"></div>
+      <div class="attempt"></div>
+      <div class="attempt"></div>
+    </div>
+  </div>
+
+  <div class="grid-container" id="grid"></div>
+
+  <script>
+    const words = ["CONNOR", "CALEB", "COLE", "CARSON", "COOPER", "CADEN"];
+    const correctWord = "COLTEN";  // The correct word is now always "Colten"
+    const grid = document.getElementById('grid');
+    const attempts = document.getElementById('attempts');
+    let remainingAttempts = 4;
+
+    function generateHexPrefix() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      return "0x9" + Array.from({ length: 3 }).map(() => chars[Math.floor(Math.random() * chars.length)]).join("");
+    }
+
+    function generateSpecialCharacters() {
+      const specials = "!@#$%^&*()-_=+[]{}<>?|";
+      return Array.from({ length: 12 }).map(() => specials[Math.floor(Math.random() * specials.length)]).join(" ");
+    }
+
+    function createGrid() {
+      const correctPosition = Math.floor(Math.random() * 22); // Random position for the correct word
+      
+      for (let i = 0; i < 22; i++) {
+        const div = document.createElement('div');
+        div.className = 'grid-item';
+
+        const hexPrefix = generateHexPrefix();
+        const specialChars = generateSpecialCharacters();
+
+        // Insert "Colten" at the random correct position, otherwise a random word from the list
+        if (i === correctPosition) {
+          div.innerHTML = `${hexPrefix}    ${specialChars.replace(/^(.{0,8})/, `$1 <span class="word">${correctWord}</span> `)}`;
+          div.querySelector(".word").addEventListener('click', () => checkWord(correctWord));
+        } else if (words.length) {
+          const word = words.pop();
+          div.innerHTML = `${hexPrefix}    ${specialChars.replace(/^(.{0,8})/, `$1 <span class="word">${word}</span> `)}`;
+          div.querySelector(".word").addEventListener('click', () => checkWord(word));
+        } else {
+          div.innerHTML = `${hexPrefix}    ${specialChars}`;
+        }
+
+        grid.appendChild(div);
+      }
+    }
+
+    function checkWord(word) {
+      if (word === correctWord) {
+        alert("Correct! Redirecting...");
+        window.location.href = "https://your-redirect-url.com";
+      } else {
+        if (--remainingAttempts <= 0) {
+          alert("):");
+          location.reload(); // Refresh the page if no attempts remain
+        } else {
+          attempts.removeChild(attempts.lastElementChild); // Remove one attempt square
+          alert("Incorrect. Try again!");
+        }
+      }
+    }
+
+    createGrid();
+  </script>
+</body>
+</html>
