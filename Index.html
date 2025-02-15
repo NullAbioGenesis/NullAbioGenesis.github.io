@@ -108,28 +108,26 @@
 
     // Create the grid with consistent line lengths
     function createGrid() {
-      const correctPosition = Math.floor(Math.random() * 22); // Random position for the correct word
+      const allWords = [...words, correctWord]; // Include the correct word in the list
+      const totalLines = 22;
 
-      for (let i = 0; i < 22; i++) {
+      for (let i = 0; i < totalLines; i++) {
         const div = document.createElement('div');
         div.className = 'grid-item';
 
         const hexPrefix = generateHexPrefix();
         const specialChars = generateSpecialCharacters(30); // Generate 30 special characters
 
-        let lineContent = `${hexPrefix}    ${specialChars}`;
+        // Randomly select a word from the list (including the correct word)
+        const word = allWords[Math.floor(Math.random() * allWords.length)];
 
-        // Insert a word randomly into the line
-        if (i === correctPosition) {
-          lineContent = insertWordRandomly(lineContent, correctWord);
-          div.innerHTML = lineContent.replace(correctWord, `<span class="word">${correctWord}</span>`);
-          div.querySelector(".word").addEventListener('click', () => checkWord(correctWord));
-        } else {
-          const word = words[Math.floor(Math.random() * words.length)];
-          lineContent = insertWordRandomly(lineContent, word);
-          div.innerHTML = lineContent.replace(word, `<span class="word">${word}</span>`);
-          div.querySelector(".word").addEventListener('click', () => checkWord(word));
-        }
+        // Insert the word randomly into the line
+        let lineContent = `${hexPrefix}    ${specialChars}`;
+        lineContent = insertWordRandomly(lineContent, word);
+
+        // Highlight the word and add a click event
+        div.innerHTML = lineContent.replace(word, `<span class="word">${word}</span>`);
+        div.querySelector(".word").addEventListener('click', () => checkWord(word));
 
         // Ensure each line has the same number of characters
         div.textContent = lineContent.padEnd(50, " "); // Pad to 50 characters
